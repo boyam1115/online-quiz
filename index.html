@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub &amp; Copilot Quiz</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#667085;--accent:#2563eb;--line:#dce3ee}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#eef4ff,#f7f8fc);color:var(--ink);line-height:1.55}
+header{padding:42px 18px 30px;text-align:center;color:white;background:linear-gradient(120deg,#111827,#1d4ed8)}header h1{margin:0 0 8px;font-size:clamp(1.8rem,5vw,2.6rem)}header p{margin:0;color:#dbeafe}
+main{width:min(850px,calc(100% - 28px));margin:28px auto 48px}.summary{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;padding:16px 18px;background:var(--card);border:1px solid var(--line);border-radius:14px;margin-bottom:18px}
+.question{padding:20px;margin:14px 0;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 5px 18px #1720330a}.question h2{margin:0 0 13px;font-size:1.08rem}
+.option{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;margin:8px 0;cursor:pointer}.option:hover{border-color:#93b4ff;background:#f7faff}.option input{margin-top:5px;accent-color:var(--accent)}.option.correct{border-color:#16a34a;background:#f0fdf4}.option.wrong{border-color:#dc2626;background:#fef2f2}
+.feedback{margin:10px 0 0;font-weight:700}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}button{border:0;border-radius:10px;padding:12px 18px;font-size:1rem;font-weight:700;cursor:pointer}#submit{color:white;background:var(--accent)}#reset{color:#1f2937;background:#e5e7eb}button:hover{filter:brightness(.96)}#result{display:none;margin-top:20px;padding:20px;border-radius:14px;background:#eff6ff;border:1px solid #bfdbfe}#result h2{margin-top:0}footer{text-align:center;color:var(--muted);font-size:.9rem;padding:0 15px 30px}
+</style>
+</head>
+<body>
+<header><h1>GitHub &amp; Copilot Quiz</h1><p>Test your knowledge of version control, repositories, and AI coding assistance.</p></header>
+<main><div class="summary"><strong>10 multiple-choice questions</strong><span>1 point per question · Maximum score: 10</span></div>
+<form id="quizForm"><div id="questions"></div><div class="actions"><button id="submit" type="submit">Submit Answers</button><button id="reset" type="button">Try Again</button></div></form><section id="result" aria-live="polite"></section></main>
+<footer>Made for a GitHub Pages practice project.</footer>
+<script>
+const quiz = [
+{q:"What is GitHub mainly used for?",a:["Hosting and collaborating on software projects","Editing photos only","Sending private text messages","Managing computer hardware"],correct:0,why:"GitHub hosts Git repositories and provides collaboration tools for software projects."},
+{q:"What is Git?",a:["A programming language","A distributed version control system","A web browser","A database server"],correct:1,why:"Git tracks changes to files and supports collaboration through version control."},
+{q:"What is a repository (repo)?",a:["A collection of project files and their history","A type of monitor","A password manager only","A computer network cable"],correct:0,why:"A repository stores project files and their revision history."},
+{q:"What does a commit do in Git?",a:["Deletes the entire project","Records a snapshot of staged changes","Publishes a website automatically every time","Creates a new email account"],correct:1,why:"A commit records staged changes in the repository history."},
+{q:"What is a branch commonly used for?",a:["Developing changes separately from another line of work","Increasing screen brightness","Compressing every file","Replacing the internet connection"],correct:0,why:"Branches let you work on features or fixes independently before merging."},
+{q:"What is a pull request used for?",a:["Requesting review and merging proposed changes","Downloading a computer operating system","Resetting a GitHub password","Changing a monitor resolution"],correct:0,why:"Pull requests let collaborators discuss, review, and propose merging changes."},
+{q:"What is GitHub Copilot?",a:["An AI coding assistant","A physical computer component","A Git command for deleting branches","A website hosting protocol"],correct:0,why:"GitHub Copilot assists with coding tasks, such as suggesting and explaining code."},
+{q:"Which is a sensible way to use AI-generated code?",a:["Accept all suggestions without reading them","Review, test, and understand suggestions before using them","Share private passwords to improve suggestions","Assume the code is always correct"],correct:1,why:"AI suggestions can be wrong or unsuitable, so review and test them before use."},
+{q:"What does README.md usually contain?",a:["Project information and instructions","Only compiled machine code","A list of every user's passwords","A computer graphics driver"],correct:0,why:"A README commonly explains what a project does and how to use it."},
+{q:"What does GitHub Pages let you do?",a:["Publish a static website from a repository","Run any server-side program without limits","Create a Git commit by speaking","Replace Git with a spreadsheet"],correct:0,why:"GitHub Pages can publish static websites using files stored in a repository."}
+];
+const letters=["A","B","C","D"],container=document.getElementById("questions");
+quiz.forEach(function(item,i){
+ const section=document.createElement("section");section.className="question";section.id="question-"+i;
+ const heading=document.createElement("h2");heading.textContent=(i+1)+". "+item.q;section.appendChild(heading);
+ item.a.forEach(function(answer,j){const label=document.createElement("label");label.className="option";const radio=document.createElement("input");radio.type="radio";radio.name="q"+i;radio.value=j;const text=document.createElement("span");text.textContent=letters[j]+". "+answer;label.append(radio,text);section.appendChild(label);});
+ const feedback=document.createElement("p");feedback.className="feedback";feedback.hidden=true;feedback.id="feedback-"+i;section.appendChild(feedback);container.appendChild(section);
+});
+document.getElementById("quizForm").addEventListener("submit",function(event){
+ event.preventDefault();let score=0,unanswered=0;
+ quiz.forEach(function(item,i){const section=document.getElementById("question-"+i),chosen=document.querySelector('input[name="q'+i+'"]:checked'),feedback=document.getElementById("feedback-"+i);feedback.hidden=false;
+ section.querySelectorAll(".option").forEach(function(label,j){label.classList.remove("correct","wrong");if(j===item.correct)label.classList.add("correct");if(chosen&&Number(chosen.value)===j&&j!==item.correct)label.classList.add("wrong");});
+ if(!chosen){unanswered++;feedback.textContent="Not answered. Correct answer: "+letters[item.correct]+". "+item.a[item.correct]+". "+item.why;}
+ else if(Number(chosen.value)===item.correct){score++;feedback.textContent="Correct! "+item.why;}
+ else{feedback.textContent="Correct answer: "+letters[item.correct]+". "+item.a[item.correct]+". "+item.why;}
+ });
+ const result=document.getElementById("result");result.style.display="block";result.innerHTML="<h2>Your result: "+score+" / "+quiz.length+"</h2><p>"+Math.round(score/quiz.length*100)+"% correct.</p><p>"+(unanswered?unanswered+" question(s) were left unanswered.":"You answered every question.")+"</p>";result.scrollIntoView({behavior:"smooth",block:"center"});
+});
+document.getElementById("reset").addEventListener("click",function(){document.getElementById("quizForm").reset();document.querySelectorAll(".option").forEach(function(label){label.classList.remove("correct","wrong");});document.querySelectorAll(".feedback").forEach(function(p){p.hidden=true;p.textContent="";});const result=document.getElementById("result");result.style.display="none";result.innerHTML="";window.scrollTo({top:0,behavior:"smooth"});});
+</script>
+</body>
+</html>
